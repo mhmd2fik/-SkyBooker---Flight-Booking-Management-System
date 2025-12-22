@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'company') {
 $company_id = $_SESSION['user_id'];
 $company = $conn->query("SELECT logo_path FROM users WHERE id = $company_id")->fetch_assoc();
 
+$error = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['flight_name'];
     $fid = $_POST['flight_id'];
@@ -20,12 +21,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $end = $_POST['end_time'];
     $company_id = $_SESSION['user_id'];
 
-    $sql = "INSERT INTO flights (company_id, flight_name, flight_unique_id, itinerary, fees, max_passengers, start_time, end_time) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssdiss", $company_id, $name, $fid, $itinerary, $fees, $max, $start, $end);
-    $stmt->execute();
-    header("Location: company_home.php");
+    // Check if flight ID already exists
+    $check = $conn->prepare("SELECT id FROM flights WHERE flight_unique_id = ?");
+    $check->bind_param("s", $fid);
+    $check->execute();
+    if ($check->get_result()->num_rows > 0) {
+        $error = "Flight ID '$fid' already exists. Please use a unique ID.";
+    } else {
+        $sql = "INSERT INTO flights (company_id, flight_name, flight_unique_id, itinerary, fees, max_passengers, start_time, end_time) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("isssdiss", $company_id, $name, $fid, $itinerary, $fees, $max, $start, $end);
+        $stmt->execute();
+        header("Location: company_home.php");
+        exit();
+    }
 }
 ?>
 
@@ -62,6 +72,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <span style="font-size: 3rem;">🛫</span>
                 <h2 style="margin-top: 12px;">Create New Flight</h2>
             </div>
+            
+            <?php if($error): ?>
+                <p class="error-msg"><?php echo $error; ?></p>
+            <?php endif; ?>
             
             <form method="POST">
                 <input type="text" name="flight_name" placeholder="Flight Name (e.g. Sky Express 101)" required>
