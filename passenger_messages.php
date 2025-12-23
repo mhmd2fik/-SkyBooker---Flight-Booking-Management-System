@@ -93,9 +93,9 @@ if ($selected > 0) {
                         <h3><?php echo htmlspecialchars($other_user['name']); ?></h3>
                         <small><?php echo htmlspecialchars($other_user['email']); ?></small>
                     </div>
-                    <div class="chat-messages">
+                    <div class="chat-messages" data-user-id="<?php echo $me; ?>">
                         <?php while($m = $chat->fetch_assoc()): ?>
-                            <div class="msg <?php echo ($m['sender_id'] == $me) ? 'sent' : 'received'; ?>">
+                            <div class="msg <?php echo ($m['sender_id'] == $me) ? 'sent' : 'received'; ?>" data-msg-id="<?php echo $m['id']; ?>">
                                 <?php echo htmlspecialchars($m['msg']); ?>
                             </div>
                         <?php endwhile; ?>

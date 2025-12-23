@@ -139,6 +139,160 @@ $(document).ready(function() {
     }
 
     // ========================================
+    // AJAX MESSAGE POLLING & SENDING
+    // ========================================
+    let lastMessageId = 0;
+    let pollingInterval = null;
+    
+    // Initialize last message ID from existing messages
+    function initializeLastMessageId() {
+        const messages = $('.chat-messages .msg');
+        if (messages.length > 0) {
+            const lastMsg = messages.last();
+            const msgId = lastMsg.data('msg-id');
+            if (msgId) {
+                lastMessageId = parseInt(msgId);
+            }
+        }
+    }
+    
+    // Fetch new messages via AJAX
+    function fetchNewMessages() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const receiverId = urlParams.get('to');
+        
+        if (!receiverId || receiverId == '0') {
+            return;
+        }
+        
+        $.ajax({
+            url: 'fetch_messages.php',
+            type: 'GET',
+            data: {
+                to: receiverId,
+                last_id: lastMessageId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.messages && response.messages.length > 0) {
+                    const chatBox = $('.chat-messages');
+                    const isAtBottom = chatBox[0].scrollHeight - chatBox.scrollTop() <= chatBox.outerHeight() + 50;
+                    
+                    response.messages.forEach(function(msg) {
+                        const userId = chatBox.data('user-id');
+                        const isSent = (msg.sender_id == userId);
+                        const msgClass = isSent ? 'sent' : 'received';
+                        
+                        const msgElement = $(`
+                            <div class="msg ${msgClass}" data-msg-id="${msg.id}" style="display:none;">
+                                ${escapeHtml(msg.msg)}
+                            </div>
+                        `);
+                        
+                        chatBox.append(msgElement);
+                        msgElement.fadeIn(300);
+                        
+                        lastMessageId = msg.id;
+                    });
+                    
+                    // Auto-scroll if user was already at bottom
+                    if (isAtBottom) {
+                        chatBox.animate({ scrollTop: chatBox[0].scrollHeight }, 300);
+                    }
+                }
+            },
+            error: function() {
+                // Silently fail - don't annoy user with errors
+            }
+        });
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Send message via AJAX
+    function handleMessageSubmit(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const messageInput = form.find('input[name="txt"]');
+        const receiverId = form.find('input[name="receiver_id"]').val();
+        const messageText = messageInput.val().trim();
+        
+        if (!messageText) {
+            return;
+        }
+        
+        // Disable form during send
+        form.find('button').prop('disabled', true);
+        messageInput.prop('disabled', true);
+        
+        $.ajax({
+            url: 'send_message.php',
+            type: 'POST',
+            data: {
+                receiver_id: receiverId,
+                txt: messageText
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Add message to chat immediately
+                    const chatBox = $('.chat-messages');
+                    const msgElement = $(`
+                        <div class="msg sent" data-msg-id="${response.message_id}" style="display:none;">
+                            ${escapeHtml(response.msg)}
+                        </div>
+                    `);
+                    
+                    chatBox.append(msgElement);
+                    msgElement.fadeIn(300);
+                    chatBox.animate({ scrollTop: chatBox[0].scrollHeight }, 300);
+                    
+                    // Update last message ID
+                    lastMessageId = response.message_id;
+                    
+                    // Clear input
+                    messageInput.val('');
+                } else {
+                    showNotification('Failed to send message. Please try again.', 'error');
+                }
+            },
+            error: function() {
+                showNotification('Network error. Please check your connection.', 'error');
+            },
+            complete: function() {
+                // Re-enable form
+                form.find('button').prop('disabled', false);
+                messageInput.prop('disabled', false);
+                messageInput.focus();
+            }
+        });
+    }
+    
+    // Initialize messaging if on messages page
+    if ($('.chat-messages').length > 0) {
+        initializeLastMessageId();
+        
+        // Attach AJAX handler to message form
+        $('.chat-input, .chat-area form').on('submit', handleMessageSubmit);
+        
+        // Start polling every 3 seconds
+        pollingInterval = setInterval(fetchNewMessages, 3000);
+        
+        // Stop polling when leaving page
+        $(window).on('beforeunload', function() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+        });
+    }
+
+    // ========================================
     // CONFIRM DANGEROUS ACTIONS
     // ========================================
     $('button[name="cancel_flight"], button[name="cancel_booking"]').on('click', function(e) {
