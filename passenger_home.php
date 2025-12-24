@@ -82,7 +82,7 @@ while ($row = $result->fetch_assoc()) {
         <div>
             <a href="passenger_home.php" class="active">Dashboard</a>
             <a href="search_flight.php">Flights</a>
-            <a href="passenger_messages.php">Messages</a>
+            <a href="passenger_messages.php" target="_blank">Messages</a>
             <a href="passenger_profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>

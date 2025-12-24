@@ -45,7 +45,7 @@ $pending_bookings = $conn->query("SELECT COUNT(*) as cnt FROM bookings b JOIN fl
         <div>
             <a href="company_home.php" class="active">Dashboard</a>
             <a href="add_flight.php">Add Flight</a>
-            <a href="company_messages.php">Messages</a>
+            <a href="company_messages.php" target="_blank">Messages</a>
             <a href="company_profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>

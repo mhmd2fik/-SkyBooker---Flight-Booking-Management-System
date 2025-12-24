@@ -43,7 +43,7 @@ if (isset($_GET['from']) && isset($_GET['to'])) {
         <div>
             <a href="passenger_home.php">Dashboard</a>
             <a href="search_flight.php" class="active">Flights</a>
-            <a href="passenger_messages.php">Messages</a>
+            <a href="passenger_messages.php" target="_blank">Messages</a>
             <a href="passenger_profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>

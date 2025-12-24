@@ -73,7 +73,7 @@ $user = $conn->query("SELECT * FROM users WHERE id = $user_id")->fetch_assoc();
         <div>
             <a href="passenger_home.php">Dashboard</a>
             <a href="search_flight.php">Flights</a>
-            <a href="passenger_messages.php">Messages</a>
+            <a href="passenger_messages.php" target="_blank">Messages</a>
             <a href="passenger_profile.php" class="active">Profile</a>
             <a href="logout.php">Logout</a>
         </div>

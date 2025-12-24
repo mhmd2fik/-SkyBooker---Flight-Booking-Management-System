@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div>
             <a href="company_home.php">Dashboard</a>
             <a href="add_flight.php" class="active">Add Flight</a>
-            <a href="company_messages.php">Messages</a>
+            <a href="company_messages.php" target="_blank">Messages</a>
             <a href="company_profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>

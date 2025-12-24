@@ -304,7 +304,7 @@ $(document).ready(function() {
     // ========================================
     // SMOOTH PAGE TRANSITIONS
     // ========================================
-    $('a').not('[href^="#"]').not('[href^="javascript"]').on('click', function(e) {
+    $('a').not('[href^="#"]').not('[href^="javascript"]').not('[target="_blank"]').on('click', function(e) {
         const href = $(this).attr('href');
         if (href && !href.startsWith('mailto')) {
             e.preventDefault();

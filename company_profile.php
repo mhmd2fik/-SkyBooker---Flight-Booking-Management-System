@@ -83,7 +83,7 @@ $user = $stmt->get_result()->fetch_assoc();
         <div>
             <a href="company_home.php">Dashboard</a>
             <a href="add_flight.php">Add Flight</a>
-            <a href="company_messages.php">Messages</a>
+            <a href="company_messages.php" target="_blank">Messages</a>
             <a href="company_profile.php" class="active">Profile</a>
             <a href="logout.php">Logout</a>
         </div>
